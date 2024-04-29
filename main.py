@@ -1,25 +1,32 @@
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
-from selenium.webdriver.chrome.options import Options
-from webdriver_manager.chrome import ChromeDriverManager
+from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+import time
 
-options = Options()
-options.add_experimental_option("detach", True)
 
-driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()),
-                          options=options)
+service = Service(executable_path="chromedriver.exe")
+driver = webdriver.Chrome(service=service)
 
-driver.get("https://neuralnine.com/")
+driver.get("https://google.com")
 
-links = driver.find_elements("xpath", "//a[@href]")
-for link in links:
-    if "Books" in link.get_attribute("innerHTML"):
-        link.click()
-        break
-    # print(link.get_attribute("innerHTML"))
+WebDriverWait(driver, 5).until(
+    EC.presence_of_element_located((By.CLASS_NAME, "gLFyf"))
+)
 
-book_links = driver.find_elements("xpath",
-                                  "//div[contains(@class, 'elementor-column-wrap')][.//h2[text()[contains(.,'7 IN 1']]][count(.//a)=2]//a")
+input_element = driver.find_element(By.CLASS_NAME, "gLFyf")
+input_element.clear()
+input_element.send_keys("tech with tim" + Keys.ENTER)
 
-for book_link in book_links:
-    print(book_link.get_attribute("href"))
+WebDriverWait(driver, 5).until(
+    EC.presence_of_element_located((By.PARTIAL_LINK_TEXT, "Tech With Tim"))
+)
+
+link = driver.find_element(By.PARTIAL_LINK_TEXT, "Tech With Tim")
+link.click()
+
+time.sleep(60)
+
+driver.quit()
